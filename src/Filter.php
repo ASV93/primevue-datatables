@@ -180,6 +180,10 @@ class Filter
                 }
                 break;
             case self::IN:
+                if ($this->value === null || count($this->value) === 0) {
+                    break;
+                }
+                
 	            if ($or) {
 		            $q->orWhereIn($field, $this->value);
 	            }
