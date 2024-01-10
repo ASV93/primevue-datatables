@@ -25,7 +25,7 @@ class Filter
 
     private $likeOperator = 'LIKE';
 
-    public function __construct(public string $field, public ?string $value = null, public ?string $matchMode = self::CONTAINS)
+    public function __construct(public string $field, public $value = null, public ?string $matchMode = self::CONTAINS)
     {
         $this->likeOperator = \DB::connection()->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'pgsql' ? 'ILIKE' : 'LIKE';
     }
@@ -180,7 +180,12 @@ class Filter
                 }
                 break;
             case self::IN:
-                //TODO: Implement
+	            if ($or) {
+		            $q->orWhereIn($field, $this->value);
+	            }
+                else {
+	                $q->whereIn($field, $this->value);
+                }
                 break;
             case self::LESS_THAN:
                 if ($or) {
