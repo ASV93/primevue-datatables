@@ -97,14 +97,14 @@ class Filter
             case self::STARTS_WITH:
                 if ($or) {
                     if(!$jsonField) {
-                        $q->orWhere($field, $this->likeOperator, $this->value . "%");
+                        $q->orWhereRaw("TRANSLATE(UPPER($field), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU') LIKE ?", [Utils::removeAccentsOracle(mb_strtoupper(trim($this->value))) . "%"]);
                     }
                     else {
                         $q->orWhereRaw('LOWER('.$jsonField[0].'->>"$.'.$jsonField[1].'") '.$this->likeOperator.' ?', mb_strtolower($this->value . "%"));
                     }
                 } else {
                     if(!$jsonField) {
-                        $q->where($field, $this->likeOperator, $this->value . "%");
+                        $q->whereRaw("TRANSLATE(UPPER($field), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU') LIKE ?", [Utils::removeAccentsOracle(mb_strtoupper(trim($this->value))) . "%"]);
                     }
                     else {
                         $q->whereRaw('LOWER('.$jsonField[0].'->>"$.'.$jsonField[1].'") '.$this->likeOperator.' ?', mb_strtolower($this->value . "%"));
@@ -114,14 +114,14 @@ class Filter
             case self::NOT_CONTAINS:
                 if ($or) {
                     if(!$jsonField) {
-                        $q->orWhere($field, "NOT " . $this->likeOperator, "%" . $this->value . "%");
+                        $q->orWhereRaw("TRANSLATE(UPPER($field), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU')  NOT LIKE ?", ["%" . Utils::removeAccentsOracle(mb_strtoupper(trim($this->value))) . "%"]);
                     }
                     else {
                         $q->orWhereRaw('LOWER('.$jsonField[0].'->>"$.'.$jsonField[1].'") NOT '.$this->likeOperator.' ?', mb_strtolower("%" . $this->value . "%"));
                     }
                 } else {
                     if(!$jsonField) {
-                        $q->where($field, "NOT " . $this->likeOperator, "%" . $this->value . "%");
+                        $q->whereRaw("TRANSLATE(UPPER($field), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU')  NOT LIKE ?", ["%" . Utils::removeAccentsOracle(mb_strtoupper(trim($this->value))) . "%"]);
                     }
                     else {
                         $q->whereRaw('LOWER('.$jsonField[0].'->>"$.'.$jsonField[1].'") NOT '.$this->likeOperator.' ?', mb_strtolower("%" . $this->value . "%"));
@@ -131,14 +131,14 @@ class Filter
             case self::ENDS_WITH:
                 if ($or) {
                     if(!$jsonField) {
-                        $q->orWhere($field, $this->likeOperator, "%" . $this->value);
+                        $q->orWhereRaw("TRANSLATE(UPPER($field), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU') LIKE ?", ["%" . Utils::removeAccentsOracle(mb_strtoupper(trim($this->value)))]);
                     }
                     else {
                         $q->orWhereRaw('LOWER('.$jsonField[0].'->>"$.'.$jsonField[1].'") '.$this->likeOperator.' ?', mb_strtolower("%" . $this->value . ""));
                     }
                 } else {
                     if(!$jsonField) {
-                        $q->where($field, $this->likeOperator, "%" . $this->value);
+                        $q->whereRaw("TRANSLATE(UPPER($field), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU') LIKE ?", ["%" . Utils::removeAccentsOracle(mb_strtoupper(trim($this->value)))]);
                     }
                     else {
                         $q->whereRaw('LOWER('.$jsonField[0].'->>"$.'.$jsonField[1].'") '.$this->likeOperator.' ?', mb_strtolower("%" . $this->value . ""));
@@ -220,9 +220,12 @@ class Filter
                 }
                 break;
             case self::BETWEEN:
-                //TODO: implement
+                if ($or) {
+                    $q->orWhereBetween($field, $this->value);
+                } else {
+                    $q->whereBetween($field, $this->value);
+                }
                 break;
-
             case self::DATE_IS:
                 if ($or) {
                     $q->orWhereDate($field, "=", $this->value);
@@ -230,7 +233,6 @@ class Filter
                     $q->whereDate($field, "=", $this->value);
                 }
                 break;
-
             case self::DATE_IS_NOT:
                 if ($or) {
                     $q->orWhereDate($field, "!=", $this->value);
@@ -238,7 +240,6 @@ class Filter
                     $q->whereDate($field, "!=", $this->value);
                 }
                 break;
-
             case self::DATE_BEFORE:
                 if ($or) {
                     $q->orWhereDate($field, "<=", $this->value);
@@ -253,20 +254,18 @@ class Filter
                     $q->whereDate($field, ">", $this->value);
                 }
                 break;
-
             case self::CONTAINS:
             default:
-
                 if ($or) {
                     if(!$jsonField) {
-                        $q->orWhere($field, $this->likeOperator, "%" . $this->value . "%");
+                        $q->orWhereRaw("TRANSLATE(UPPER($field), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU')  LIKE ?", ["%" . Utils::removeAccentsOracle(mb_strtoupper(trim($this->value))) . "%"]);
                     }
                     else {
                         $q->orWhereRaw('LOWER('.$jsonField[0].'->>"$.'.$jsonField[1].'") '.$this->likeOperator.' ?', mb_strtolower("%" . $this->value . "%"));
                     }
                 } else {
                     if(!$jsonField) {
-                        $q->where($field, $this->likeOperator, "%" . $this->value . "%");
+                        $q->whereRaw("TRANSLATE(UPPER($field), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU')  LIKE ?", ["%" . Utils::removeAccentsOracle(mb_strtoupper(trim($this->value))) . "%"]);
                     }
                     else {
                         $q->whereRaw('LOWER('.$jsonField[0].'->>"$.'.$jsonField[1].'") '.$this->likeOperator.' ?', mb_strtolower("%" . $this->value . "%"));

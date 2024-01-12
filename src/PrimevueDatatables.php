@@ -122,7 +122,7 @@ class PrimevueDatatables
         if ($this->sort != null) {
             $key = explode(".", $this->sort);
             if (sizeof($key) === 1) {
-                $q->orderBy($this->sort, $this->sortDirection ?? 'asc');
+                $q->orderByRaw("TRANSLATE(UPPER($this->sort), 'ÁÉÍÓÚÀÈÌÒÙÜ', 'AEIOUAEIOUU') " . $this->sortDirection ?? 'asc');
             } elseif (sizeof($key) === 2) {
                 $relationship = $this->getRelatedFromMethodName($key[0], get_class($q->getModel()));
                 if ($relationship) {
