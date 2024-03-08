@@ -54,7 +54,7 @@ class PrimevueDatatables
         return $instance->query($query);
     }
 
-    public function make(): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function make(bool $paginate = true): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $this->currentPage = collect($this->_dtParams)->get("page", 0) + 1;
         $this->perPage = collect($this->_dtParams)->get("rows", 10);
@@ -108,7 +108,10 @@ class PrimevueDatatables
         }
         $query->with($with->toArray());
         $this->applySort($query);
-        return $query->paginate($this->perPage, page: $this->currentPage);
+
+        if ($paginate)
+            return $query->paginate($this->perPage, page: $this->currentPage);
+        return $query->get();
     }
 
     private function applyFilter(Filter $filter, Builder &$q, $or = false)
